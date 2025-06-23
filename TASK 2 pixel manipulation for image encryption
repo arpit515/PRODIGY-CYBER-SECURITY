@@ -1,0 +1,52 @@
+from PIL import Image
+import os
+
+def encrypt_image(input_path, output_path, key):
+    try:
+        image = Image.open(input_path)
+        encrypted = Image.new(image.mode, image.size)
+        pixels = image.load()
+        encrypted_pixels = encrypted.load()
+
+        for x in range(image.width):
+            for y in range(image.height):
+                r, g, b = pixels[x, y]
+                encrypted_pixels[x, y] = (r ^ key, g ^ key, b ^ key)
+
+        encrypted.save(output_path)
+        print(f"🔒 Encrypted image saved to: {output_path}")
+    except Exception as e:
+        print("Error during encryption:", e)
+
+def decrypt_image(input_path, output_path, key):
+    # Since encryption is reversible, decryption is the same process
+    encrypt_image(input_path, output_path, key)
+
+def main():
+    print("=== Image Encryptor/Decryptor ===")
+    choice = input("Type 'e' to encrypt or 'd' to decrypt: ").lower()
+    if choice not in ('e', 'd'):
+        print("Invalid choice.")
+        return
+
+    input_path = input("Enter path to image file: ")
+    if not os.path.exists(input_path):
+        print("File does not exist.")
+        return
+
+    output_path = input("Enter output file path: ")
+    try:
+        key = int(input("Enter numeric key (0–255): "))
+        if not (0 <= key <= 255):
+            raise ValueError
+    except ValueError:
+        print("Invalid key. Must be an integer between 0 and 255.")
+        return
+
+    if choice == 'e':
+        encrypt_image(input_path, output_path, key)
+    else:
+        decrypt_image(input_path, output_path, key)
+
+if __name__ == "__main__":
+    main()
